@@ -22,13 +22,21 @@ class Deck(object):
 			var.show()
 	def shuffle(self):
 		random.shuffle(self.deck)
-	def burn(self):
-		self.deck.pop()
 	def count(self):
 		print len(self.deck)
-	def deal(self):
-		# self.hand.append()
+
+	# AMY:  The burn and deal functions are the same, so consider combining them - keep it DRY (Don't Repeat Yourself)
+	def burn(self):
 		self.deck.pop()
+
+	def deal(self):
+
+		# AMY:  Consider when the deal method is called - it looks like you're using it in the Player class in its draw method. So this method better have a return back to the Player class. Remember that a function call is equal to whatever that function returns. So when the player calls the draw method, the player wants something back - it wants the card back.
+
+		# self.deck.pop()
+		#AMY: changed the above line to the one below
+		return self.deck.pop()
+
 
 
 class Player(object):
@@ -37,9 +45,15 @@ class Player(object):
 		self.hand=[]
 
 
-	def draw(self):
-		self.hand.append(Card(card.value,card.sui))
-		deal()
+	def draw(self, deckinstance):
+		# AMY: Here, you're creating a brand new card and trying to access variables that you do not have (card is not known within this scope, so neither is card.value nor card.sui, and then deal() is not a method that is callable here.) What you want to do is refer to a particular deck's deal method. Here, as we're setting up our class for the player, we don't want to limit ourselves to a particular instance of the card class, so it would be best to allow the card to be passed in as a parameter. I added in deck as a parameter.
+		# AMY: changing the lines below
+		# self.hand.append(Card(card.value,card.sui))
+		# deal()
+		# AMY: altering to the lines below
+		drawncard = deckinstance.deal() # whatever deck got passed in as a parameter, we'll use that deck's deal method and get back a card
+		self.hand.append(drawncard) # and we'll add that drawncard to our hand
+		return self #this will allow for method chaining, because the player instance itself gets returned, and the player instance has methods and attributes that can be referenced using dot notation
 
 
 			# self.hand.append(draw)
@@ -53,9 +67,20 @@ class Player(object):
 
 
 test1 = Player("joe")
+
 deck1= Deck()
-test1.draw()
-print test1.hand
+deck1.shuffle()
+
+test1.draw(deck1).draw(deck1).draw(deck1).draw(deck1)
+
+
+print "Joe's hand"
+for card in test1.hand:
+	#AMY: expecting 4 random cards to be printed
+	print card.value, card.suit
+
+# test1.draw()
+# print test1.hand
 # print test1.hand
 # deck1.showDeck()
 # test1.shuffle()
